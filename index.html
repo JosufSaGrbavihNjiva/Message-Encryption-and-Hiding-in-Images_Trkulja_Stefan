@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <title>Message Encryption & Image Hiding</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<a class="back-btn" href="/">← Späť na portál</a>
+
+<header class="hero">
+    <h1>Message Encryption & Image Hiding</h1>
+    <p>
+        Ukry tajnú správu do obrázka pomocou šifrovania a LSB steganografie priamo v prehliadači.
+    </p>
+</header>
+
+<main class="container">
+
+    <!-- SKRYTIE SPRÁVY -->
+    <section class="panel">
+        <h2>1. Skryť správu do obrázka</h2>
+
+        <div class="drop-zone" id="hideDropZone">
+            <p>Presuň obrázok sem alebo klikni pre výber</p>
+            <span>PNG / JPG / JPEG</span>
+            <input type="file" id="hideImageInput" accept="image/*" hidden>
+        </div>
+
+        <div class="info-box" id="imageInfo">
+            Zatiaľ nebol nahratý žiadny obrázok.
+        </div>
+
+        <div class="preview-box">
+            <h3>Náhľad nahratého obrázka</h3>
+            <img id="uploadedPreview" src="" alt="Náhľad nahratého obrázka">
+        </div>
+
+        <label for="secretMessage">Tajná správa</label>
+        <textarea id="secretMessage" placeholder="Napíš tajnú správu..."></textarea>
+
+        <div class="row">
+            <button id="demoBtn" class="secondary-btn">Načítať demo</button>
+            <button id="clearBtn" class="secondary-btn">Vyčistiť</button>
+        </div>
+
+        <label for="hidePassword">Heslo</label>
+        <input type="password" id="hidePassword" placeholder="Zadaj heslo">
+
+        <div class="password-meter">
+            <div id="passwordBar"></div>
+        </div>
+        <p id="passwordText">Sila hesla: nezadané</p>
+
+        <label for="encryptionMode">Režim šifrovania</label>
+        <select id="encryptionMode">
+            <option value="aes">Strong AES-GCM encryption</option>
+            <option value="xor">Basic XOR encryption</option>
+        </select>
+
+        <button id="hideBtn">Skryť správu do obrázka</button>
+        <button id="downloadBtn" disabled>Stiahnuť výsledný obrázok</button>
+    </section>
+
+    <!-- PREČÍTANIE SPRÁVY -->
+    <section class="panel">
+        <h2>2. Prečítať správu z obrázka</h2>
+
+        <div class="drop-zone" id="revealDropZone">
+            <p>Presuň obrázok s ukrytou správou sem</p>
+            <span>PNG odporúčané</span>
+            <input type="file" id="revealImageInput" accept="image/*" hidden>
+        </div>
+
+        <div class="info-box" id="revealImageInfo">
+            Zatiaľ nebol nahratý žiadny obrázok na čítanie.
+        </div>
+
+        <div class="preview-box">
+            <h3>Nahratý obrázok s ukrytou správou</h3>
+            <img id="revealPreview" src="" alt="Náhľad obrázka s ukrytou správou">
+        </div>
+
+        <label for="revealPassword">Heslo</label>
+        <input type="password" id="revealPassword" placeholder="Zadaj heslo">
+
+        <label for="revealMode">Režim dešifrovania</label>
+        <select id="revealMode">
+            <option value="aes">Strong AES-GCM encryption</option>
+            <option value="xor">Basic XOR encryption</option>
+        </select>
+
+        <button id="revealBtn">Prečítať správu</button>
+
+        <div class="result-box">
+            <h3>Výsledok</h3>
+            <p id="revealedMessage">Tu sa zobrazí ukrytá správa.</p>
+        </div>
+    </section>
+
+    <!-- POROVNANIE OBRÁZKOV -->
+    <section class="wide-panel">
+        <h2>3. Porovnanie obrázkov</h2>
+
+        <div class="canvas-grid">
+            <div>
+                <h3>Pôvodný obrázok</h3>
+                <canvas id="originalCanvas"></canvas>
+            </div>
+
+            <div>
+                <h3>Obrázok s ukrytou správou</h3>
+                <canvas id="hiddenCanvas"></canvas>
+            </div>
+
+            <div>
+                <h3>Mapa skrytých dát</h3>
+                <canvas id="differenceCanvas"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- HISTÓRIA -->
+    <section class="wide-panel">
+        <h2>4. História operácií</h2>
+        <ul id="logList">
+            <li>Aplikácia pripravená.</li>
+        </ul>
+    </section>
+
+    <!-- SKRYTÝ CANVAS NA ČÍTANIE SPRÁVY -->
+    <canvas id="revealCanvas" hidden></canvas>
+
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
