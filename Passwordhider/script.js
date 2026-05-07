@@ -25,7 +25,7 @@ const demoBtn = document.getElementById("demoBtn");
 const clearBtn = document.getElementById("clearBtn");
 
 const encryptionMode = document.getElementById("encryptionMode");
-const revealMode = document.getElementById("revealMode");
+const codingMode = document.getElementById("codingMode");
 
 const imageInfo = document.getElementById("imageInfo");
 const revealImageInfo = document.getElementById("revealImageInfo");
@@ -40,11 +40,32 @@ const passwordText = document.getElementById("passwordText");
 
 let hiddenImageReady = false;
 
+/* TABS */
+
+const tabButtons = document.querySelectorAll(".tab-btn");
+const tabContents = document.querySelectorAll(".tab-content");
+
+tabButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+        const tabId = button.dataset.tab;
+
+        tabButtons.forEach((btn) => btn.classList.remove("active"));
+        tabContents.forEach((tab) => tab.classList.remove("active"));
+
+        button.classList.add("active");
+        document.getElementById(tabId).classList.add("active");
+    });
+});
+
+/* LOG */
+
 function addLog(message) {
     const li = document.createElement("li");
     li.textContent = "✓ " + message;
     logList.prepend(li);
 }
+
+/* FILE UPLOAD */
 
 function setupDropZone(dropZone, input, callback) {
     dropZone.addEventListener("click", () => input.click());
@@ -101,6 +122,8 @@ function loadImageToCanvas(file, canvas, ctx, callback) {
     reader.readAsDataURL(file);
 }
 
+/* IMAGE INFO */
+
 function updateImageCapacityInfo() {
     if (!originalCanvas.width || !originalCanvas.height) {
         imageInfo.textContent = "Zatiaľ nebol nahratý žiadny obrázok.";
@@ -121,6 +144,8 @@ function updateImageCapacityInfo() {
         <strong>Využitie:</strong> ${usage} %
     `;
 }
+
+/* PASSWORD STRENGTH */
 
 function checkPasswordStrength(password) {
     let score = 0;
@@ -156,6 +181,8 @@ function checkPasswordStrength(password) {
     passwordText.textContent = "Sila hesla: " + label;
 }
 
+/* BASIC XOR */
+
 function xorEncryptDecrypt(text, password) {
     let result = "";
 
@@ -166,6 +193,8 @@ function xorEncryptDecrypt(text, password) {
 
     return result;
 }
+
+/* AES-GCM */
 
 function arrayBufferToBase64(buffer) {
     const bytes = new Uint8Array(buffer);
@@ -262,6 +291,8 @@ async function decryptAES(encryptedJson, password) {
     return decoder.decode(decrypted);
 }
 
+/* TEXT / BINARY */
+
 function textToBinary(text) {
     const encoder = new TextEncoder();
     const bytes = encoder.encode(text);
@@ -286,6 +317,164 @@ function binaryToText(binary) {
     const decoder = new TextDecoder();
     return decoder.decode(new Uint8Array(bytes));
 }
+
+/* 8 CODING METHODS */
+
+function utf8ToBase64(text) {
+    const bytes = new TextEncoder().encode(text);
+    let binary = "";
+
+    for (const byte of bytes) {
+        binary += String.fromCharCode(byte);
+    }
+
+    return btoa(binary);
+}
+
+function base64ToUtf8(base64) {
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+
+    for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+    }
+
+    return new TextDecoder().decode(bytes);
+}
+
+function encodeHex(text) {
+    const bytes = new TextEncoder().encode(text);
+
+    return Array.from(bytes)
+        .map(byte => byte.toString(16).padStart(2, "0"))
+        .join("");
+}
+
+function decodeHex(hex) {
+    const bytes = [];
+
+    for (let i = 0; i < hex.length; i += 2) {
+        bytes.push(parseInt(hex.slice(i, i + 2), 16));
+    }
+
+    return new TextDecoder().decode(new Uint8Array(bytes));
+}
+
+function encodeBinaryText(text) {
+    const bytes = new TextEncoder().encode(text);
+
+    return Array.from(bytes)
+        .map(byte => byte.toString(2).padStart(8, "0"))
+        .join(" ");
+}
+
+function decodeBinaryText(binaryText) {
+    const bytes = binaryText
+        .trim()
+        .split(" ")
+        .map(byte => parseInt(byte, 2));
+
+    return new TextDecoder().decode(new Uint8Array(bytes));
+}
+
+function rot13(text) {
+    return text.replace(/[a-zA-Z]/g, function(char) {
+        const base = char <= "Z" ? 65 : 97;
+        return String.fromCharCode(((char.charCodeAt(0) - base + 13) % 26) + base);
+    });
+}
+
+function caesarShift(text, shift) {
+    return text.replace(/[a-zA-Z]/g, function(char) {
+        const base = char <= "Z" ? 65 : 97;
+        return String.fromCharCode(((char.charCodeAt(0) - base + shift + 26) % 26) + base);
+    });
+}
+
+const morseMap = {
+    "A": ".-", "B": "-...", "C": "-.-.", "D": "-..", "E": ".", "F": "..-.",
+    "G": "--.", "H": "....", "I": "..", "J": ".---", "K": "-.-", "L": ".-..",
+    "M": "--", "N": "-.", "O": "---", "P": ".--.", "Q": "--.-", "R": ".-.",
+    "S": "...", "T": "-", "U": "..-", "V": "...-", "W": ".--", "X": "-..-",
+    "Y": "-.--", "Z": "--..",
+    "0": "-----", "1": ".----", "2": "..---", "3": "...--", "4": "....-",
+    "5": ".....", "6": "-....", "7": "--...", "8": "---..", "9": "----.",
+    ".": ".-.-.-", ",": "--..--", "?": "..--..", "!": "-.-.--", "-": "-....-",
+    "/": "-..-.", "@": ".--.-.", "(": "-.--.", ")": "-.--.-"
+};
+
+const reverseMorseMap = Object.fromEntries(
+    Object.entries(morseMap).map(([letter, code]) => [code, letter])
+);
+
+function encodeMorse(text) {
+    return text
+        .toUpperCase()
+        .split("")
+        .map(char => {
+            if (char === " ") return "/";
+            return morseMap[char] || char;
+        })
+        .join(" ");
+}
+
+function decodeMorse(text) {
+    return text
+        .split(" ")
+        .map(code => {
+            if (code === "/") return " ";
+            return reverseMorseMap[code] || code;
+        })
+        .join("");
+}
+
+function encodeMessageByMode(message, mode) {
+    switch (mode) {
+        case "base64":
+            return utf8ToBase64(message);
+        case "hex":
+            return encodeHex(message);
+        case "binary":
+            return encodeBinaryText(message);
+        case "rot13":
+            return rot13(message);
+        case "caesar":
+            return caesarShift(message, 3);
+        case "reverse":
+            return [...message].reverse().join("");
+        case "url":
+            return encodeURIComponent(message);
+        case "morse":
+            return encodeMorse(message);
+        default:
+            return message;
+    }
+}
+
+function decodeMessageByMode(message, mode) {
+    switch (mode) {
+        case "base64":
+            return base64ToUtf8(message);
+        case "hex":
+            return decodeHex(message);
+        case "binary":
+            return decodeBinaryText(message);
+        case "rot13":
+            return rot13(message);
+        case "caesar":
+            return caesarShift(message, -3);
+        case "reverse":
+            return [...message].reverse().join("");
+        case "url":
+            return decodeURIComponent(message);
+        case "morse":
+            return decodeMorse(message);
+        default:
+            return message;
+    }
+}
+
+/* DIFFERENCE MAP */
 
 function createDifferenceMap(originalData, modifiedData, width, height) {
     differenceCanvas.width = width;
@@ -316,10 +505,13 @@ function createDifferenceMap(originalData, modifiedData, width, height) {
     differenceCtx.putImageData(diffImageData, 0, 0);
 }
 
-function buildPayload(mode, encryptedMessage) {
+/* PAYLOAD */
+
+function buildPayload(encryption, coding, encryptedMessage) {
     const payload = JSON.stringify({
         app: "MessageEncryptionImageHiding",
-        mode: mode,
+        encryption: encryption,
+        coding: coding,
         message: encryptedMessage
     });
 
@@ -337,10 +529,13 @@ function extractPayload(text) {
     return JSON.parse(payloadText);
 }
 
+/* HIDE MESSAGE */
+
 async function hideMessage() {
     const message = secretMessage.value;
     const password = hidePassword.value;
-    const mode = encryptionMode.value;
+    const encryption = encryptionMode.value;
+    const coding = codingMode.value;
 
     if (!originalCanvas.width || !originalCanvas.height) {
         alert("Najprv nahraj obrázok.");
@@ -358,19 +553,22 @@ async function hideMessage() {
     }
 
     try {
-        addLog("Začína sa šifrovanie správy.");
+        addLog("Začína sa kódovanie a šifrovanie správy.");
+
+        const codedMessage = encodeMessageByMode(message, coding);
+        addLog("Správa bola zakódovaná metódou: " + coding + ".");
 
         let encryptedMessage;
 
-        if (mode === "aes") {
-            encryptedMessage = await encryptAES(message, password);
+        if (encryption === "aes") {
+            encryptedMessage = await encryptAES(codedMessage, password);
             addLog("Správa bola zašifrovaná pomocou AES-GCM.");
         } else {
-            encryptedMessage = btoa(unescape(encodeURIComponent(xorEncryptDecrypt(message, password))));
+            encryptedMessage = btoa(unescape(encodeURIComponent(xorEncryptDecrypt(codedMessage, password))));
             addLog("Správa bola zašifrovaná pomocou Basic XOR.");
         }
 
-        const finalPayload = buildPayload(mode, encryptedMessage);
+        const finalPayload = buildPayload(encryption, coding, encryptedMessage);
         const binaryMessage = textToBinary(finalPayload);
 
         const originalImageData = originalCtx.getImageData(
@@ -414,7 +612,7 @@ async function hideMessage() {
         hiddenImageReady = true;
         downloadBtn.disabled = false;
 
-        addLog("Zašifrované dáta boli zapísané do najmenej významných bitov pixelov.");
+        addLog("Zašifrované dáta boli zapísané do pixelov.");
         addLog("Mapa skrytých dát bola vytvorená.");
         addLog("Výsledný PNG obrázok je pripravený na stiahnutie.");
 
@@ -425,6 +623,8 @@ async function hideMessage() {
         addLog("Chyba pri ukrývaní správy.");
     }
 }
+
+/* REVEAL MESSAGE */
 
 async function revealMessage() {
     const file = revealImageInput.files[0];
@@ -469,7 +669,9 @@ async function revealMessage() {
 
                         let decryptedMessage;
 
-                        if (payload.mode === "aes") {
+                        const encryptionType = payload.encryption || "aes";
+
+                        if (encryptionType === "aes") {
                             decryptedMessage = await decryptAES(payload.message, password);
                             addLog("Správa bola dešifrovaná pomocou AES-GCM.");
                         } else {
@@ -478,8 +680,16 @@ async function revealMessage() {
                             addLog("Správa bola dešifrovaná pomocou Basic XOR.");
                         }
 
-                        revealedMessage.textContent = decryptedMessage;
+                        const decodedMessage = decodeMessageByMode(
+                            decryptedMessage,
+                            payload.coding || "none"
+                        );
+
+                        revealedMessage.textContent = decodedMessage;
+
+                        addLog("Správa bola dekódovaná metódou: " + (payload.coding || "none") + ".");
                         addLog("Ukrytá správa bola úspešne zobrazená.");
+
                         return;
                     }
                 }
@@ -489,12 +699,16 @@ async function revealMessage() {
             addLog("Správa sa v obrázku nenašla.");
         } catch (error) {
             console.error(error);
+
             revealedMessage.textContent =
                 "Správa sa nedá prečítať. Pravdepodobne je nesprávne heslo alebo bol obrázok poškodený.";
+
             addLog("Chyba: správa sa nedá dešifrovať.");
         }
     });
 }
+
+/* DOWNLOAD */
 
 function downloadHiddenImage() {
     if (!hiddenImageReady) {
@@ -508,6 +722,8 @@ function downloadHiddenImage() {
 
     addLog("Výsledný obrázok bol stiahnutý.");
 }
+
+/* LOAD HIDE IMAGE */
 
 function loadHideImage(file) {
     const previewUrl = URL.createObjectURL(file);
@@ -536,9 +752,12 @@ function loadHideImage(file) {
         downloadBtn.disabled = true;
 
         updateImageCapacityInfo();
+
         addLog("Obrázok bol načítaný a zobrazený v náhľade.");
     });
 }
+
+/* LOAD REVEAL IMAGE */
 
 function loadRevealImage(file) {
     const previewUrl = URL.createObjectURL(file);
@@ -561,17 +780,20 @@ function loadRevealImage(file) {
     addLog("Obrázok na čítanie správy bol načítaný a zobrazený.");
 }
 
+/* BUTTONS */
+
 demoBtn.addEventListener("click", () => {
     secretMessage.value =
-        "Toto je tajná správa ukrytá v obrázku. Projekt demonštruje šifrovanie a steganografiu priamo v prehliadači.";
+        "Toto je tajná správa ukrytá v obrázku. Projekt demonštruje kódovanie, šifrovanie a steganografiu priamo v prehliadači.";
 
     hidePassword.value = "Student2026!";
     encryptionMode.value = "aes";
+    codingMode.value = "base64";
 
     checkPasswordStrength(hidePassword.value);
     updateImageCapacityInfo();
 
-    addLog("Demo správa a heslo boli načítané.");
+    addLog("Demo správa, heslo a kódovanie boli načítané.");
 });
 
 clearBtn.addEventListener("click", () => {

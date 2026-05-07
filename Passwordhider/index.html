@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <title>Message Encryption & Image Hiding</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<a class="back-btn" href="/static">← Späť</a>
+
+<header class="hero">
+    <h1>Message Encryption & Image Hiding</h1>
+    <p>Ukry správu do obrázka pomocou kódovania, šifrovania a LSB steganografie.</p>
+</header>
+
+<main class="app">
+
+    <nav class="tabs">
+        <button class="tab-btn active" data-tab="encodeTab">Encode / Hide message</button>
+        <button class="tab-btn" data-tab="decodeTab">Decode / Reveal message</button>
+    </nav>
+
+    <!-- ENCODE TAB -->
+    <section id="encodeTab" class="tab-content active">
+
+        <div class="main-grid">
+
+            <div class="card">
+                <h2>1. Nahraj obrázok</h2>
+
+                <div class="drop-zone" id="hideDropZone">
+                    <p>Presuň obrázok sem alebo klikni</p>
+                    <span>PNG / JPG / JPEG</span>
+                    <input type="file" id="hideImageInput" accept="image/*" hidden>
+                </div>
+
+                <div class="info-box" id="imageInfo">
+                    Zatiaľ nebol nahratý žiadny obrázok.
+                </div>
+
+                <div class="preview-box">
+                    <h3>Náhľad obrázka</h3>
+                    <img id="uploadedPreview" src="" alt="Náhľad nahratého obrázka">
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>2. Správa, kódovanie a šifrovanie</h2>
+
+                <label for="secretMessage">Tajná správa</label>
+                <textarea id="secretMessage" placeholder="Napíš tajnú správu..."></textarea>
+
+                <div class="row">
+                    <button id="demoBtn" class="secondary-btn">Načítať demo</button>
+                    <button id="clearBtn" class="secondary-btn">Vyčistiť</button>
+                </div>
+
+                <label for="hidePassword">Heslo</label>
+                <input type="password" id="hidePassword" placeholder="Zadaj heslo">
+
+                <div class="password-meter">
+                    <div id="passwordBar"></div>
+                </div>
+
+                <p id="passwordText">Sila hesla: nezadané</p>
+
+                <label for="codingMode">Spôsob kódovania</label>
+                <select id="codingMode">
+                    <option value="none">Žiadne kódovanie</option>
+                    <option value="base64">Base64</option>
+                    <option value="hex">Hexadecimal</option>
+                    <option value="binary">Binary</option>
+                    <option value="rot13">ROT13</option>
+                    <option value="caesar">Caesar +3</option>
+                    <option value="reverse">Reverse text</option>
+                    <option value="url">URL encoding</option>
+                    <option value="morse">Morse code</option>
+                </select>
+
+                <label for="encryptionMode">Šifrovanie</label>
+                <select id="encryptionMode">
+                    <option value="aes">Strong AES-GCM encryption</option>
+                    <option value="xor">Basic XOR encryption</option>
+                </select>
+
+                <button id="hideBtn">Skryť správu do obrázka</button>
+                <button id="downloadBtn" disabled>Stiahnuť výsledný PNG</button>
+            </div>
+
+        </div>
+
+        <div class="bottom-grid">
+
+            <div class="card">
+                <h2>3. Porovnanie obrázkov</h2>
+
+                <div class="canvas-grid">
+                    <div>
+                        <h3>Pôvodný obrázok</h3>
+                        <canvas id="originalCanvas"></canvas>
+                    </div>
+
+                    <div>
+                        <h3>Obrázok s ukrytou správou</h3>
+                        <canvas id="hiddenCanvas"></canvas>
+                    </div>
+
+                    <div>
+                        <h3>Mapa skrytých dát</h3>
+                        <canvas id="differenceCanvas"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card log-card">
+                <h2>História</h2>
+                <ul id="logList">
+                    <li>Aplikácia pripravená.</li>
+                </ul>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- DECODE TAB -->
+    <section id="decodeTab" class="tab-content">
+
+        <div class="decode-grid">
+
+            <div class="card">
+                <h2>1. Nahraj obrázok s ukrytou správou</h2>
+
+                <div class="drop-zone" id="revealDropZone">
+                    <p>Presuň obrázok s ukrytou správou sem</p>
+                    <span>PNG odporúčané</span>
+                    <input type="file" id="revealImageInput" accept="image/*" hidden>
+                </div>
+
+                <div class="info-box" id="revealImageInfo">
+                    Zatiaľ nebol nahratý žiadny obrázok na čítanie.
+                </div>
+
+                <div class="preview-box big-preview">
+                    <h3>Nahratý obrázok</h3>
+                    <img id="revealPreview" src="" alt="Náhľad obrázka s ukrytou správou">
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>2. Dešifrovanie</h2>
+
+                <label for="revealPassword">Heslo</label>
+                <input type="password" id="revealPassword" placeholder="Zadaj rovnaké heslo">
+
+                <button id="revealBtn">Prečítať správu</button>
+
+                <div class="result-box">
+                    <h3>Výsledok</h3>
+                    <p id="revealedMessage">Tu sa zobrazí ukrytá správa.</p>
+                </div>
+
+                <div class="tip-box">
+                    <strong>Tip:</strong> Použi presne PNG obrázok, ktorý aplikácia vytvorila.
+                    JPG alebo obrázok poslaný cez Messenger/WhatsApp môže ukryté dáta poškodiť.
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+    <canvas id="revealCanvas" hidden></canvas>
+
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
